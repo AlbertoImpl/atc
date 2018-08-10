@@ -70,6 +70,7 @@ type Build interface {
 	Finish(BuildStatus) error
 
 	SetInterceptible(bool) error
+	SetDrained(bool) error
 
 	Events(uint) (EventSource, error)
 	SaveEvent(event atc.Event) error
@@ -369,6 +370,16 @@ func (b *build) Finish(status BuildStatus) error {
 	}
 
 	return nil
+}
+
+func (b *build) SetDrained(drained bool) error {
+	_, err := psql.Update("builds").
+		Set("drained", drained).
+		Where(sq.Eq{"id": b.id}).
+		RunWith(b.conn).
+		Exec()
+
+	return err
 }
 
 func (b *build) Delete() (bool, error) {

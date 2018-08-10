@@ -36,6 +36,7 @@ import (
 	"github.com/concourse/atc/radar"
 	"github.com/concourse/atc/resource"
 	"github.com/concourse/atc/scheduler"
+	"github.com/concourse/atc/syslog"
 	"github.com/concourse/atc/worker"
 	"github.com/concourse/atc/worker/image"
 	"github.com/concourse/atc/wrappa"
@@ -141,6 +142,13 @@ type RunCommand struct {
 
 	DefaultCpuLimit    *int    `long:"default-task-cpu-limit" description:"Default max number of cpu shares per task, 0 means unlimited"`
 	DefaultMemoryLimit *string `long:"default-task-memory-limit" description:"Default maximum memory per task, 0 means unlimited"`
+
+	Syslog struct {
+		Hostname      string        `long:"syslog-hostname" description:""`
+		Address       string        `long:"syslog-address" description:""`
+		Transport     string        `long:"syslog-transport" description:""`
+		DrainInterval time.Duration `long:"syslog-drain-interval" description:"" default:"30s"`
+	}
 
 	Auth struct {
 		AuthFlags     skycmd.AuthFlags
@@ -664,6 +672,21 @@ func (cmd *RunCommand) constructMembers(
 			cmd.GC.Interval,
 		)},
 
+		{"syslog", lockrunner.NewRunner(
+			logger.Session("syslog"),
+
+			syslog.NewDrainer(
+				cmd.Syslog.Transport,
+				cmd.Syslog.Address,
+				cmd.Syslog.Hostname,
+				dbBuildFactory,
+			),
+			"syslog-drainer",
+			lockFactory,
+			clock.NewClock(),
+			cmd.Syslog.DrainInterval,
+		)},
+
 		// run separately so as to not preempt critical GC
 		{"build-log-collector", lockrunner.NewRunner(
 			logger.Session("build-log-collector"),
@@ -769,6 +792,7 @@ func (cmd *RunCommand) Runner(positionalArguments []string) (ifrit.Runner, bool,
 		"collector",
 		"build-log-collector",
 		"static-worker",
+		"syslog",
 	},
 		32,
 		"backend",
