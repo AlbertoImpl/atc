@@ -67,7 +67,7 @@ func NewImageResourceFetcherFactory(
 		resourceFetcherFactory:  resourceFetcherFactory,
 		dbResourceCacheFactory:  dbResourceCacheFactory,
 		dbResourceConfigFactory: dbResourceConfigFactory,
-		clock: clock,
+		clock:                   clock,
 	}
 }
 
@@ -85,7 +85,7 @@ func (f *imageResourceFetcherFactory) NewImageResourceFetcher(
 		resourceFactory:         resourceFactory,
 		dbResourceCacheFactory:  f.dbResourceCacheFactory,
 		dbResourceConfigFactory: f.dbResourceConfigFactory,
-		clock: f.clock,
+		clock:                   f.clock,
 
 		worker:                worker,
 		imageResource:         imageResource,

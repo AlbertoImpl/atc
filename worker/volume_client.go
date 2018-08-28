@@ -104,8 +104,8 @@ func NewVolumeClient(
 		dbVolumeRepository:              dbVolumeRepository,
 		dbWorkerBaseResourceTypeFactory: dbWorkerBaseResourceTypeFactory,
 		dbWorkerTaskCacheFactory:        dbWorkerTaskCacheFactory,
-		clock:    clock,
-		dbWorker: dbWorker,
+		clock:                           clock,
+		dbWorker:                        dbWorker,
 	}
 }
 
